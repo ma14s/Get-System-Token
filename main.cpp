@@ -1,8 +1,6 @@
 #include<iostream>
 #include<Windows.h>
 #include<TlHelp32.h>
-#include<sddl.h>
-#include<psapi.h>
 HANDLE systemToken()
 {
     PROCESSENTRY32 proc;
@@ -26,7 +24,7 @@ HANDLE systemToken()
             continue;
         }
 
-        HANDLE token; 
+        HANDLE token{};
         if (!OpenProcessToken(openProc, MAXIMUM_ALLOWED, &token)) 
         {
        
@@ -47,7 +45,7 @@ HANDLE systemToken()
 
                    RevertToSelf();
                    CloseHandle(openProc); 
-                   CloseHandle(token);  
+                   CloseHandle(token);
 
                    return token;
                }
@@ -63,15 +61,25 @@ HANDLE systemToken()
     }
 
     CloseHandle(Snap);
+    return INVALID_HANDLE_VALUE;
 }
 
 int main()
 {
 
+    HANDLE sysToken = systemToken();
 
+    if (sysToken == INVALID_HANDLE_VALUE)
+    {
+ 
+      std::cerr << "Failed to obtain system token. Error Code: " << GetLastError << std::endl;
 
-
+      return -1;
+    }
     
+
+    std::wcout << L"Successfully obtained system token." << std::endl;
+
     system("pause");
  
 }
